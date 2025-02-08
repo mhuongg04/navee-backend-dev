@@ -1,0 +1,112 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id          String       @id @default(cuid())
+  created_at  DateTime     @default(now())
+  updated_at  DateTime     @updatedAt
+  email       String       @unique
+  firstname   String
+  lastname    String?
+  role        Role         @default(user)
+  password    String
+  earnpoints  Int          @default(0)
+  Enrollment  Enrollment[]
+}
+
+enum Role {
+  user
+  teacher
+  admin
+}
+
+model Topic {
+  id          String        @id @default(cuid())
+  created_at  DateTime      @default(now())
+  updated_at  DateTime      @updatedAt
+  topic_name  String
+  description String?
+  image       String?
+  level       Level         @default(starter)
+  LessonTopic LessonTopic[]
+  Vocab       Vocab[]
+  Enrollment  Enrollment[]
+  Game        Game[]
+}
+
+enum Level {
+  starter
+  mover
+  flyer
+  pre_ielts
+}
+
+model Lesson {
+  id          String        @id @default(cuid())
+  created_at  DateTime      @default(now())
+  updated_at  DateTime      @updatedAt
+  title       String
+  description String?
+  image       String?
+  mp3         String
+  part        Int
+  LessonTopic LessonTopic[]
+}
+
+model LessonTopic {
+  id         String       @id @default(cuid())
+  topic_id   String
+  lesson_id  String
+  topic      Topic        @relation(fields: [topic_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  lesson     Lesson       @relation(fields: [lesson_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  Vocab      Vocab[]
+  Enrollment Enrollment[]
+  Game       Game[]
+}
+
+model Vocab {
+  id          String       @id @default(cuid())
+  category    String
+  english     String
+  vietnamese  String
+  description String?
+  lesson_id   String?
+  topic_id    String?
+  lesson      LessonTopic? @relation(fields: [lesson_id], references: [id])
+  topic       Topic?       @relation(fields: [topic_id], references: [id])
+  GameVocab   GameVocab[]
+}
+
+model Enrollment {
+  id       String      @id @default(cuid())
+  topic_id String
+  current  String
+  user_id  String
+  topic    Topic       @relation(fields: [topic_id], references: [id])
+  lesson   LessonTopic @relation(fields: [current], references: [id])
+  user     User        @relation(fields: [user_id], references: [id])
+}
+
+model Game {
+  id        String       @id @default(cuid())
+  topic_id  String?
+  lesson_id String?
+  topic     Topic?       @relation(fields: [topic_id], references: [id])
+  lesson    LessonTopic? @relation(fields: [lesson_id], references: [id])
+  GameVocab GameVocab[]
+}
+
+model GameVocab {
+  id       String @id @default(cuid())
+  vocab_id String
+  hint     String
+  game_id  String
+  game     Game   @relation(fields: [game_id], references: [id])
+  vocab    Vocab  @relation(fields: [vocab_id], references: [id])
+}
