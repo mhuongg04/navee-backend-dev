@@ -15,9 +15,9 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use(
     cors({
-        origin: "http://localhost:5050", // Nguồn gốc frontend
-        methods: ["GET", "POST", "PUT", "DELETE"], // Các phương thức được phép
-        credentials: true, // Nếu sử dụng cookie
+        origin: "http://localhost:5050",
+        methods: ["GET", "POST", "PUT", "DELETE"],
+        credentials: true,
     })
 );
 //app.use('api', authRouter);

@@ -47,7 +47,6 @@ const AuthController = {
     async login(request, response) {
         const { email, password } = request.body;
         try {
-            // Kiểm tra xem email đã tồn tại trong cơ sở dữ liệu chưa
             const user = await prisma.user.findUnique({
                 where: {
                     email: email,
@@ -82,6 +81,22 @@ const AuthController = {
         catch (error) {
             console.log(error);
             response.status(400).json({ error: "Login failed!" })
+        }
+    },
+
+    async getUserInfo(request, response) {
+        const userId = response.locals.user.id;
+
+        console.log(userId)
+
+        try {
+            const userInfo = await prisma.user.findUnique({
+                where: { id: userId }
+            });
+            response.status(200).json({ user: userInfo })
+        }
+        catch (error) {
+            response.status(500).json({ error: "Cannot get user's info" })
         }
     }
 };

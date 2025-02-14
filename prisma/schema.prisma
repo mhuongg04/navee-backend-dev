@@ -57,6 +57,7 @@ model Lesson {
   mp3         String
   part        Int
   LessonTopic LessonTopic[]
+  Exercise    Exercise[]
 }
 
 model LessonTopic {
@@ -109,4 +110,13 @@ model GameVocab {
   game_id  String
   game     Game   @relation(fields: [game_id], references: [id])
   vocab    Vocab  @relation(fields: [vocab_id], references: [id])
+}
+
+model Exercise {
+  id        String @id @default(cuid())
+  question  String
+  answer    String
+  point     Int
+  lesson_id String
+  lesson    Lesson @relation(fields: [lesson_id], references: [id])
 }
