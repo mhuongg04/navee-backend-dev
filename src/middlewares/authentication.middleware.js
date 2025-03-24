@@ -21,7 +21,7 @@ const authenticateUser = (req, res, next) => {
             return res.status(401).json({ error: "Unauthorized: Invalid token structure" });
         }
 
-        res.locals.user = { id: decoded.userId };
+        req.user = { id: decoded.userId }; // ✅ Gán vào req.user
         next();
     } catch (error) {
         console.error("Authentication error:", error.message);
