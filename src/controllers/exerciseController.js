@@ -4,8 +4,6 @@ const prisma = new PrismaClient();
 require("dotenv").config();
 
 const ExerciseController = {
-
-    //Lấy danh sách tất cả bài tập
     async getAllExercise(request, response) {
         try {
             const listEx = await prisma.exercise.findMany();
@@ -17,15 +15,14 @@ const ExerciseController = {
 
     },
 
-    //Lấy bài tập theo Lesson ID
     async getExerciseByLessonId(request, response) {
         const { lesson_id } = request.params;
-        //console.log(lesson_id)
+        console.log(lesson_id)
         try {
             const exercises = await prisma.exercise.findMany({
                 where: { lesson_id: lesson_id }
             })
-            //console.log(exercises)
+            console.log(exercises)
             response.status(200).json({ exercises })
         }
         catch (error) {
@@ -33,12 +30,12 @@ const ExerciseController = {
         }
     },
 
-    //Tạo mới bài tập
     async createExercise(request, response) {
         const { lesson_id } = request.params;
         const { data } = request.body;
 
         try {
+            // Kiểm tra xem bài học có tồn tại không
             const existEx = await prisma.lesson.findUnique({
                 where: { id: lesson_id }
             });
@@ -46,6 +43,11 @@ const ExerciseController = {
             if (!existEx) {
                 return response.status(400).json({ error: 'Bài học không tồn tại' });
             }
+
+            console.log("Lesson ID: ", lesson_id);
+            console.log("Data: ", data);
+
+            // Thêm nhiều bài tập mới
             const newExercises = await prisma.exercise.createMany({
                 data: data.map(ex => ({
                     question: ex.question,
@@ -55,48 +57,10 @@ const ExerciseController = {
                 }))
             });
 
-            response.status(201).json({ message: "Tạo bài tập thành công", exercises: newExercises });
+            response.status(200).json({ message: "Tạo bài tập thành công", exercises: newExercises });
         } catch (error) {
-            //console.error(error);
+            console.error(error);
             response.status(500).json({ message: "Lỗi khi tạo bài tập", error });
-        }
-    },
-
-    async editExercise(request, response) {
-        const { ex_id } = request.params;
-        const { question, answer, point } = request.body;
-
-        try {
-            const newEx = await prisma.exercise.update({
-                where: {
-                    id: ex_id
-                },
-                data: {
-                    question: question,
-                    answer: answer,
-                    point: Number(point)
-                }
-            });
-            response.status(200).json({ message: "Edit exercise successfully", data: newEx });
-        }
-        catch (e) {
-            response.status(500).json({ message: "Cannot edit exercise", e });
-        }
-    },
-
-    async deleteExercise(request, response) {
-        const { ex_id } = request.params;
-
-        try {
-            await prisma.exercise.delete({
-                where: {
-                    id: ex_id
-                }
-            });
-            response.status(200).json({ message: "Deleted exercise successfully" });
-        }
-        catch (e) {
-            response.status(500).json({ message: "Cannot delete exercise", e });
         }
     }
 
