@@ -3,7 +3,6 @@ const jwt = require('jsonwebtoken');
 const authenticateUser = (req, res, next) => {
     try {
         const authHeader = req.headers.authorization;
-        console.log("🔍 Received Authorization Header:", authHeader);
 
         if (!authHeader || !authHeader.startsWith("Bearer ")) {
             console.error("No token provided");
@@ -11,10 +10,8 @@ const authenticateUser = (req, res, next) => {
         }
 
         const token = authHeader.split(" ")[1];
-        console.log("🔍 Extracted Token:", token);
 
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        console.log("Decoded Token:", decoded);
 
         if (!decoded || !decoded.userId) {
             console.error("Invalid token structure");
