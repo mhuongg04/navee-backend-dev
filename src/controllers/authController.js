@@ -40,7 +40,7 @@ const AuthController = {
             });
         } catch (error) {
             console.log(error);
-            response.status(400).json({ error: "Signup failed!" })
+            response.status(400).json({ error: "Đăng ký thất bại!" })
         }
     },
 
