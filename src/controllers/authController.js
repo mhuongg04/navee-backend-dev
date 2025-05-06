@@ -28,7 +28,14 @@ const AuthController = {
                 }
             });
 
-            console.log(newUser.firstname, newUser.lastname, newUser.email, newUser.password)
+            await prisma.flashcard.create({
+                data: {
+                    title: "Flashcard của tôi",
+                    user_id: newUser.id
+                }
+            })
+
+            //console.log(newUser.firstname, newUser.lastname, newUser.email, newUser.password)
 
             response.status(201).json({
                 id: newUser.id,
@@ -39,8 +46,9 @@ const AuthController = {
                 earnpoints: newUser.earnpoints,
             });
         } catch (error) {
-            console.log(error);
-            response.status(400).json({ error: "Đăng ký thất bại!" })
+
+            //console.log(error);
+            response.status(400).json({ error: "Signup failed!" })
         }
     },
 
@@ -69,6 +77,7 @@ const AuthController = {
 
             const secret = process.env.JWT_SECRET;
             const userId = user.id;
+            const role = user.role;
             const token = jwt.sign({ userId: userId }, secret, {
                 expiresIn: "24h",
             });
@@ -76,18 +85,17 @@ const AuthController = {
             return response.status(201).json({
                 message: "Login successfully!",
                 accessToken: token,
+                role: role,
             });
         }
         catch (error) {
-            console.log(error);
+            //console.log(error);
             response.status(400).json({ error: "Login failed!" })
         }
     },
 
     async getUserInfo(request, response) {
         const userId = response.locals.user.id;
-
-        console.log(userId)
 
         try {
             const userInfo = await prisma.user.findUnique({
