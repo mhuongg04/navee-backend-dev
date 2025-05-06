@@ -137,6 +137,11 @@ const TopicController = {
                 where: { id: topic_id }
             });
 
+            // Kiểm tra nếu không tìm thấy topic
+            if (!my_topic) {
+                return response.status(404).json({ message: "Topic not found" });
+            }
+
             let imageKey = my_topic.image;
             if (imageKey && imageKey.startsWith("https://")) {
                 const url = new URL(imageKey);

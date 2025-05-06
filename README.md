@@ -1,3 +1,4 @@
+
 # NAVEE - An English learning website for visually impaired student (Backend)
 -------------------------
 ## We are still on our developing progress
@@ -23,13 +24,4 @@ For teachers, they can upload, edit or delete courses, tests, vocabs and flashca
 ![image](https://github.com/user-attachments/assets/d8dca3ff-b152-4cfa-950e-2fa8f1d4739d)
 ![image](https://github.com/user-attachments/assets/13f145b4-c02d-456c-9af9-d890861fb1f0)
 ![image](https://github.com/user-attachments/assets/cf6633f1-9826-4b28-a483-0455244e2530)
-
-
-
-
-
-
-
-
-
 

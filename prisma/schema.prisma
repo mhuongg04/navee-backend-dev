@@ -8,17 +8,18 @@ datasource db {
 }
 
 model User {
-  id          String       @id @default(cuid())
-  created_at  DateTime     @default(now())
-  updated_at  DateTime     @updatedAt
-  email       String       @unique
-  firstname   String
-  lastname    String?
-  role        Role         @default(user)
-  password    String
-  earnpoints  Int          @default(0)
-  Enrollment  Enrollment[]
-  Flashcard   Flashcard[]
+  id              String           @id @default(cuid())
+  created_at      DateTime         @default(now())
+  updated_at      DateTime         @updatedAt
+  email           String           @unique
+  firstname       String
+  lastname        String?
+  role            Role             @default(user)
+  password        String
+  earnpoints      Int              @default(0)
+  enrollments     Enrollment[]
+  exerciseResults ExerciseResult[]
+  testResults     TestResult[] // Thêm quan hệ ngược lại với TestResult
 }
 
 enum Role {
@@ -55,17 +56,19 @@ model Lesson {
   des_prac    String        @default("")
   Vocab       Vocab[]
   LessonTopic LessonTopic[]
-  Exercise    Exercise[]
+  exercises   Exercise[]
 }
 
 model LessonTopic {
-  id         String       @id @default(cuid())
-  topic_id   String
-  lesson_id  String
-  topic      Topic        @relation(fields: [topic_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  lesson     Lesson       @relation(fields: [lesson_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  Enrollment Enrollment[]
-  Game       Game[]
+  id             String           @id @default(cuid())
+  topic_id       String
+  lesson_id      String
+  topic          Topic            @relation(fields: [topic_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  lesson         Lesson           @relation(fields: [lesson_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  Vocab          Vocab[]
+  Enrollment     Enrollment[]
+  Game           Game[]
+  lessonProgress LessonProgress[]
 }
 
 model Vocab {
@@ -86,13 +89,28 @@ model Vocab {
 }
 
 model Enrollment {
-  id       String      @id @default(cuid())
-  topic_id String
-  current  String
-  user_id  String
-  topic    Topic       @relation(fields: [topic_id], references: [id])
-  lesson   LessonTopic @relation(fields: [current], references: [id])
-  user     User        @relation(fields: [user_id], references: [id])
+  id             String           @id @default(cuid())
+  created_at     DateTime         @default(now())
+  topic_id       String
+  current        String
+  user_id        String
+  completed      Boolean          @default(false)
+  progress       Float            @default(0)
+  topic          Topic            @relation(fields: [topic_id], references: [id])
+  lesson         LessonTopic      @relation(fields: [current], references: [id])
+  user           User             @relation(fields: [user_id], references: [id])
+  lessonProgress LessonProgress[]
+}
+
+model LessonProgress {
+  id            String      @id @default(cuid())
+  enrollment_id String
+  lesson_id     String
+  completed     Boolean     @default(false)
+  enrollment    Enrollment  @relation(fields: [enrollment_id], references: [id], onDelete: Cascade)
+  lesson        LessonTopic @relation(fields: [lesson_id], references: [id], onDelete: Cascade)
+
+  @@unique([enrollment_id, lesson_id])
 }
 
 model Game {
@@ -114,12 +132,59 @@ model GameVocab {
 }
 
 model Exercise {
-  id        String @id @default(cuid())
-  question  String
-  answer    String
-  point     Int
-  lesson_id String
-  lesson    Lesson @relation(fields: [lesson_id], references: [id])
+  id              String           @id @default(cuid())
+  question        String
+  answer          String
+  point           Int
+  exercise_type   ExerciseType     @default(fillInBlank)
+  options         String[]
+  lesson_id       String?
+  test_id         String?
+  lesson          Lesson?          @relation(fields: [lesson_id], references: [id])
+  test            Test?            @relation(fields: [test_id], references: [id])
+  exerciseResults ExerciseResult[]
+}
+
+model ExerciseResult {
+  id          String   @id @default(cuid())
+  created_at  DateTime @default(now())
+  user_id     String
+  exercise_id String
+  score       Int
+  completed   Boolean  @default(false)
+  user        User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  exercise    Exercise @relation(fields: [exercise_id], references: [id], onDelete: Cascade)
+
+  @@unique([user_id, exercise_id])
+}
+
+model Test {
+  id          String       @id @default(cuid())
+  title       String
+  description String?
+  created_at  DateTime     @default(now())
+  updated_at  DateTime     @updatedAt
+  units       String[]
+  exercises   Exercise[]
+  testResults TestResult[]
+}
+
+enum ExerciseType {
+  fillInBlank
+  multipleChoice
+}
+
+model TestResult {
+  id          String   @id @default(cuid())
+  created_at  DateTime @default(now())
+  user_id     String
+  test_id     String
+  total_score Int
+  completed   Boolean  @default(false)
+  user        User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  test        Test     @relation(fields: [test_id], references: [id], onDelete: Cascade)
+
+  @@unique([user_id, test_id])
 }
 
 model Flashcard {

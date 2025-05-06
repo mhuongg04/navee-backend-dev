@@ -46,6 +46,7 @@ const AuthController = {
                 earnpoints: newUser.earnpoints,
             });
         } catch (error) {
+
             //console.log(error);
             response.status(400).json({ error: "Signup failed!" })
         }
@@ -104,6 +105,37 @@ const AuthController = {
         }
         catch (error) {
             response.status(500).json({ error: "Cannot get user's info" })
+        }
+    },
+    
+    // Thêm phương thức để lấy điểm của người dùng
+    async getUserPoints(request, response) {
+        try {
+            // Kiểm tra xem user đã được xác thực chưa
+            if (!response.locals.user) {
+                return response.status(401).json({ message: "Người dùng chưa được xác thực" });
+            }
+            
+            const userId = response.locals.user.id;
+
+            const user = await prisma.user.findUnique({
+                where: { id: userId },
+                select: { earnpoints: true, role: true }
+            });
+
+            if (!user) {
+                return response.status(404).json({ message: "Không tìm thấy người dùng" });
+            }
+
+            // Chỉ trả về điểm nếu role là user
+            if (user.role !== "user") {
+                return response.status(403).json({ message: "Chỉ người dùng với role 'user' mới có thể xem điểm" });
+            }
+
+            response.status(200).json({ earnpoints: user.earnpoints || 0 });
+        } catch (error) {
+            console.error("Error fetching user points:", error);
+            response.status(500).json({ message: "Lỗi khi lấy thông tin điểm", error: error.message });
         }
     }
 };
